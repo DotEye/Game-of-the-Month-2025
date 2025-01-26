@@ -1,4 +1,4 @@
-import {choice, distance} from '../../util.ts';
+import {choice, distance, randomInt} from '../../util.ts';
 import music from './music.mp3';
 import logo from './logo.webp';
 import click from '../../assets/click.wav';
@@ -508,8 +508,8 @@ export function january() {
             return;
         }
 
-        const tile1 = choice(remainingTiles);
-        remainingTiles.splice(remainingTiles.indexOf(tile1), 1);
+        const tileIndex = randomInt(0, remainingTiles.length - 1);
+        const tile1 = remainingTiles.splice(tileIndex, 1)[0];
         const tile2 = choice(remainingTiles);
         foods[0] = tile1;
         foods[1] = tile2;
