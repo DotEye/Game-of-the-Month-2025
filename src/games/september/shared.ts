@@ -17,8 +17,8 @@ const GRAVITY = 100;
 export function calculateTurn(positive: Positive, negatives: Negative[]) {
     let totalTurn = new Decimal(0);
     for (const negative of negatives) {
-        const dX = negative.x.minus(positive.x);
-        const dY = negative.y.minus(positive.y);
+        const dX = positive.x.neg().add(negative.x);
+        const dY = positive.y.neg().add(negative.y);
         const distance = dX.pow(2).plus(dY.pow(2));
         if (distance.isZero()) continue;
         if (distance.lt(MAGNET_RADIUS_SQ)) return 'hit magnet';
