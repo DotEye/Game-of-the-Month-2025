@@ -7,6 +7,7 @@ import {
     MAX_SIMULATION_STEPS,
     outOfBounds,
 } from '../games/september/shared.ts';
+import {getBestMove, BoardState} from '../games/october/shared.ts';
 
 export type ResponseEvent<T> = MessageEvent<{
     month: string;
@@ -90,6 +91,24 @@ async function september(message: SeptemberMessage.Any) {
     });
 }
 
-const handlers: {[month: string]: (data: any) => Promise<void>} = {september};
+namespace OctoberMessage {
+    export interface BestMove {
+        type: 'bestMove';
+        board: BoardState;
+        lookaheadMoves: number;
+        thinkId: number;
+    }
+
+    export type Any = BestMove;
+}
+
+async function october(message: OctoberMessage.Any) {
+    if (message.type === 'bestMove') {
+        const bestMove = getBestMove(message.board, message.lookaheadMoves);
+        postMessage({month: 'october', data: {type: 'bestMove', ...bestMove, thinkId: message.thinkId}});
+    }
+}
+
+const handlers: {[month: string]: (data: any) => Promise<void>} = {september, october};
 
 addEventListener('message', event => handlers[event.data.month](event.data.data));

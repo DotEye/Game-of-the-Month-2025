@@ -10,6 +10,7 @@ import {june} from './games/june';
 import {july} from './games/july';
 import {august} from './games/august';
 import {september} from './games/september';
+import {october} from './games/october';
 import GameWorker from './shared/worker.ts?worker';
 
 const games = [
@@ -22,12 +23,12 @@ const games = [
     july,
     august,
     september,
-    makeTextbox('Coming Saturday October 25th'),
-    makeTextbox('Coming Saturday November 15th'),
-    makeTextbox('Coming Saturday December 20th'),
+    october,
+    makeTextbox('Coming Saturday November 29th'),
+    makeTextbox('Coming Saturday December 27th'),
 ];
 
-const defaultMonthIndex = 8;
+const defaultMonthIndex = 9;
 
 const worker = new GameWorker();
 
