@@ -3,6 +3,7 @@ import {Negative, Positive} from './index.ts';
 
 export const MAGNET_PICKUP_RADIUS = 20;
 export const MAGNET_RADIUS = 10;
+export const MAGNET_RADIUS_SQ = 100;
 export const MAGNET_SPEED = 4;
 export const MAX_SIMULATION_STEPS = 10000;
 
@@ -19,8 +20,8 @@ export function calculateTurn(positive: Positive, negatives: Negative[]) {
         const dX = positive.x.neg().add(negative.x);
         const dY = positive.y.neg().add(negative.y);
         const distance = dX.pow(2).plus(dY.pow(2));
-        if (distance.lt(MAGNET_RADIUS ** 2)) return 'hit magnet';
-        if (distance.isZero()) continue;
+        if (distance.lt(MAGNET_RADIUS_SQ)) return 'hit magnet';
+        // if (distance.isZero()) continue; // never actually true
         totalTurn = totalTurn.plus(Decimal.atan2(dY, dX).sub(positive.angle!).sin().div(distance).mul(GRAVITY));
     }
     return totalTurn;
