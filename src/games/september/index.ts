@@ -16,6 +16,8 @@ import {FONT, UI_BLACK, UI_WHITE} from '../../shared/style.ts';
 import {audioContext, downloadAndDecode, setupSoundEffect} from '../../audio.ts';
 import {canvas, context, setOverlay} from '../../dom';
 import {distance, setupBufferSource} from '../../util.ts';
+import {create} from 'random-seed';
+import {setupStorage} from '../../shared/storage.ts';
 
 export interface Negative {
     x: number;
@@ -49,7 +51,12 @@ export function september(worker: Worker) {
     // Completely made up this number, but it seems to work well enough
     const DECIMAL_PRECISION_PADDING = 5;
 
+    const MIN_DATE = new Date(2025, 8, 1, 0, 0, 0, 0);
+    const TODAY = new Date();
+    TODAY.setHours(0, 0, 0, 0);
+
     const clickAudio = setupSoundEffect(click);
+    const storage = setupStorage('september');
 
     const background = document.createElement('canvas');
     background.width = canvas.width;
@@ -75,8 +82,11 @@ export function september(worker: Worker) {
     let lastUpdate = 0;
     let loopSource: ReturnType<typeof setupBufferSource> | undefined;
     let negatives: Negative[] = [];
-    let positive: Positive = randomPositive();
+    let negativesTemplate: Negative[] = [];
+    let positive: Positive = {x: CENTER.x, y: CENTER.y, startColor: '#ffffff', endColor: '#ffffff'};
+    let positivesTemplate: Positive[] = [];
     let scores: number[] = [];
+    let selectedDate = TODAY;
     let simulationData = {step: 0, lastX: CENTER.x.toNumber(), lastY: CENTER.y.toNumber()};
 
     downloadAndDecode(intro).then(buffer => {
@@ -94,6 +104,84 @@ export function september(worker: Worker) {
 
     function getPrecision() {
         return Math.abs(angleIncrement.e) + DECIMAL_PRECISION_PADDING;
+    }
+
+    function getSeedFromDate(date: Date) {
+        return `${date.getFullYear()}-${date.getMonth()}-${date.getUTCDate()}`;
+    }
+
+    function getDateString(date: Date): string {
+        return date.toISOString().split('T')[0];
+    }
+
+    function getHumanReadableDateString(date: Date): string {
+        return new Intl.DateTimeFormat('en-US', {
+            timeZone: 'UTC',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        }).format(date);
+    }
+
+    function generateTemplates() {
+        const generator = create(getSeedFromDate(selectedDate));
+
+        // Generate 5 different positive magnet starting positions (one for each shot)
+        positivesTemplate = [];
+        const sideLength = canvas.width + MAGNET_RADIUS * 4;
+
+        for (let i = 0; i < NUM_SHOTS; i++) {
+            const position = generator.random() * sideLength * 4;
+            const color = {
+                startColor: `hsl(${generator.random() * 360}, 100%, 50%)`,
+                endColor: `hsl(${generator.random() * 360}, 100%, 50%)`,
+            };
+
+            let positiveTemplate: Positive;
+            if (position < sideLength) {
+                positiveTemplate = {...color, x: new Decimal(position - MAGNET_RADIUS * 2), y: new Decimal(-MAGNET_RADIUS * 2)};
+            } else if (position < sideLength * 2) {
+                positiveTemplate = {
+                    ...color,
+                    x: new Decimal(canvas.width + MAGNET_RADIUS * 2),
+                    y: new Decimal(position - sideLength - MAGNET_RADIUS * 2),
+                };
+            } else if (position < sideLength * 3) {
+                positiveTemplate = {
+                    ...color,
+                    x: new Decimal(canvas.width - (position - sideLength * 2 - MAGNET_RADIUS * 2)),
+                    y: new Decimal(canvas.height + MAGNET_RADIUS * 2),
+                };
+            } else {
+                positiveTemplate = {
+                    ...color,
+                    x: new Decimal(-MAGNET_RADIUS * 2),
+                    y: new Decimal(canvas.height - (position - sideLength * 3 - MAGNET_RADIUS * 2)),
+                };
+            }
+            positivesTemplate.push(positiveTemplate);
+        }
+
+        // Generate all negative magnets templates (one for each shot)
+        negativesTemplate = [];
+        const existingPositions: {x: number; y: number}[] = [{x: canvas.width / 2, y: canvas.height / 2}];
+
+        for (let i = 0; i < NUM_SHOTS; i++) {
+            let attempts = 0;
+            while (attempts < 1000) {
+                const candidate = {
+                    x: generator.random() * (canvas.width - NEGATIVE_PADDING * 2) + NEGATIVE_PADDING,
+                    y: generator.random() * (canvas.height - NEGATIVE_PADDING * 2) + NEGATIVE_PADDING,
+                };
+
+                if (!existingPositions.some(other => distance(other.x, other.y, candidate.x, candidate.y) < NEGATIVE_MIN_DISTANCE)) {
+                    negativesTemplate.push(candidate);
+                    existingPositions.push(candidate);
+                    break;
+                }
+                attempts++;
+            }
+        }
     }
 
     function howToPlay() {
@@ -131,20 +219,75 @@ export function september(worker: Worker) {
 
         gameState = 'mainMenu';
         setOverlay(`
-            <div class="center" style="display: flex; flex-direction: column; gap: 25px">
+            <div class="center" style="display: flex; flex-direction: column; gap: 10px">
                 <img src="${logo}" alt="Drawn Together" />
+                <div style="display: flex; gap: 10px">
+                    <button id="september-prev-button" class="dark">Prev</button>
+                    <input type="date" min="${getDateString(MIN_DATE)}" style="background-color: var(--ui-black); color: var(--ui-white); color-scheme: dark">
+                    <button id="september-next-button" class="dark">Next</button>
+                </div>
+                <span style="color: black"><strong>Best score</strong>: <span id="september-best-score">-</span></span>
                 <button id="september-play-button" class="dark">PLAY</button>
                 <button id="september-how-to-play-button" class="dark">HOW TO PLAY</button>
                 <button id="september-music-credits-button" class="link" style="color: var(--ui-black)">Drawn Together Music Credits</button>
             </div>
         `);
 
-        document.getElementById('september-play-button')!.addEventListener('click', () => {
+        const inputElement = document.querySelector('input') as HTMLInputElement;
+        const prevButton = document.getElementById('september-prev-button') as HTMLButtonElement;
+        const nextButton = document.getElementById('september-next-button') as HTMLButtonElement;
+        const playButton = document.getElementById('september-play-button') as HTMLButtonElement;
+        const howToPlayButton = document.getElementById('september-how-to-play-button') as HTMLButtonElement;
+        const bestScoreSpan = document.getElementById('september-best-score') as HTMLSpanElement;
+
+        const TODAY_NORM = getDateString(TODAY);
+        const MIN_DATE_NORM = getDateString(MIN_DATE);
+
+        inputElement.value = getDateString(selectedDate);
+        inputElement.max = TODAY_NORM;
+
+        function onDateChange(date = new Date(inputElement.value)) {
+            // @ts-ignore this is the best way for checking invalid dates https://stackoverflow.com/questions/1353684
+            if (isNaN(date)) {
+                inputElement.value = getDateString(selectedDate);
+                return;
+            }
+            if (date > TODAY) date = new Date(TODAY_NORM);
+            else if (date < MIN_DATE) date = new Date(MIN_DATE_NORM);
+            selectedDate = date;
+            inputElement.value = getDateString(date);
+            prevButton.disabled = inputElement.value <= MIN_DATE_NORM;
+            nextButton.disabled = inputElement.value >= TODAY_NORM;
+            generateTemplates();
+            const bestScore = storage.get(`bestScore-${getDateString(date)}`);
+            bestScoreSpan.textContent = bestScore !== undefined ? `${bestScore.toFixed(2)}%` : '-';
+        }
+
+        inputElement.addEventListener('change', () => {
+            clickAudio.play();
+            onDateChange();
+        });
+
+        prevButton.addEventListener('click', () => {
+            clickAudio.play();
+            const date = new Date(inputElement.value);
+            date.setUTCDate(date.getUTCDate() - 1);
+            onDateChange(date);
+        });
+
+        nextButton.addEventListener('click', () => {
+            clickAudio.play();
+            const date = new Date(inputElement.value);
+            date.setUTCDate(date.getUTCDate() + 1);
+            onDateChange(date);
+        });
+
+        playButton.addEventListener('click', () => {
             clickAudio.play();
             setupGame();
         });
 
-        document.getElementById('september-how-to-play-button')!.addEventListener('click', howToPlay);
+        howToPlayButton.addEventListener('click', howToPlay);
 
         document.getElementById('september-music-credits-button')!.addEventListener('click', () => {
             clickAudio.play();
@@ -162,6 +305,8 @@ export function september(worker: Worker) {
                 mainMenu();
             });
         });
+
+        onDateChange();
     }
 
     function setGameOver() {
@@ -169,13 +314,21 @@ export function september(worker: Worker) {
         const finalScore = scores.reduce((a, b) => a + b, 0);
         const scoreBreakdown = scores.map((score, index) => `Shot ${index + 1}: +${score.toFixed(2)}%`);
 
+        let newBest = false;
+        if (finalScore > (storage.get(`bestScore-${getDateString(selectedDate)}`) ?? -1)) {
+            storage.set(`bestScore-${getDateString(selectedDate)}`, finalScore);
+            newBest = true;
+        }
+
         context.drawImage(background, 0, 0);
 
         setOverlay(`
             <div class="center" style="display: flex; flex-direction: column; gap: 5px; color: white; background: radial-gradient(black, transparent)">
                 <h1>GAME OVER</h1>
+                <p><strong>${getHumanReadableDateString(selectedDate)}</strong></p>
                 <p>${scoreBreakdown.join('</p><p>')}</p>
                 <p><strong>Final score</strong>: ${finalScore.toFixed(2)}%</p>
+                <p><strong>${newBest ? '[NEW] ' : ''}Best score for this day</strong>: ${(storage.get(`bestScore-${getDateString(selectedDate)}`) ?? 0).toFixed(2)}%</p>
                 <div style="display: flex; gap: 5px">
                     <button id="september-menu-button" class="light">MENU</button>
                     <button id="september-restart-button" class="light">RESTART</button>
@@ -199,7 +352,7 @@ export function september(worker: Worker) {
             clickAudio.play();
             navigator.clipboard
                 .writeText(
-                    `🧲 Drawn Together\n\n${scoreBreakdown.join('\n')}\n\nFinal score: ${finalScore.toFixed(2)}%`,
+                    `🧲 Drawn Together ${getHumanReadableDateString(selectedDate)}\n\n${scoreBreakdown.join('\n')}\n\nFinal score: ${finalScore.toFixed(2)}%`,
                 )
                 .then(() => {
                     const shareButton = document.getElementById('september-share-button')!;
@@ -211,7 +364,7 @@ export function september(worker: Worker) {
         document.getElementById('september-download-button')!.addEventListener('click', () => {
             clickAudio.play();
             const a = document.createElement('a');
-            a.download = `drawn_together_${new Date().toLocaleDateString()}.png`;
+            a.download = `drawn_together_${getDateString(selectedDate)}.png`;
             a.href = background.toDataURL('image/png');
             a.click();
         });
@@ -221,11 +374,10 @@ export function september(worker: Worker) {
         gameState = 'animating';
         animationStartTime = performance.now();
         scores = [];
-        negatives = [];
-        positive = randomPositive();
+        negatives = [negativesTemplate[0]];
+        positive = {...positivesTemplate[0]};
         backgroundContext.fillStyle = `rgb(${BACKGROUND_COLOR.join(',')})`;
         backgroundContext.fillRect(0, 0, canvas.width, canvas.height);
-        addNegativeMagnet();
         setAngle('center');
 
         setOverlay(`
@@ -349,56 +501,6 @@ export function september(worker: Worker) {
         trajectoryContext.clearRect(0, 0, canvas.width, canvas.height);
         document.getElementById('september-angle-value')!.style.display = 'none';
         hideUi();
-    }
-
-    function randomPositive() {
-        const sideLength = canvas.width + MAGNET_RADIUS * 4;
-        const position = Math.random() * sideLength * 4;
-        const color = {
-            startColor: `hsl(${Math.random() * 360}, 100%, 50%)`,
-            endColor: `hsl(${Math.random() * 360}, 100%, 50%)`,
-        };
-
-        if (position < sideLength) {
-            return {...color, x: new Decimal(position - MAGNET_RADIUS * 2), y: new Decimal(-MAGNET_RADIUS * 2)};
-        }
-        if (position < sideLength * 2) {
-            return {
-                ...color,
-                x: new Decimal(canvas.width + MAGNET_RADIUS * 2),
-                y: new Decimal(position - sideLength - MAGNET_RADIUS * 2),
-            };
-        }
-        if (position < sideLength * 3) {
-            return {
-                ...color,
-                x: new Decimal(canvas.width - (position - sideLength * 2 - MAGNET_RADIUS * 2)),
-                y: new Decimal(canvas.height + MAGNET_RADIUS * 2),
-            };
-        }
-        return {
-            ...color,
-            x: new Decimal(-MAGNET_RADIUS * 2),
-            y: new Decimal(canvas.height - (position - sideLength * 3 - MAGNET_RADIUS * 2)),
-        };
-    }
-
-    function addNegativeMagnet() {
-        while (true) {
-            const candidate = {
-                x: Math.random() * (canvas.width - NEGATIVE_PADDING * 2) + NEGATIVE_PADDING,
-                y: Math.random() * (canvas.height - NEGATIVE_PADDING * 2) + NEGATIVE_PADDING,
-            };
-
-            if (
-                ![...negatives, {x: canvas.width / 2, y: canvas.height / 2}].some(
-                    other => distance(other.x, other.y, candidate.x, candidate.y) < NEGATIVE_MIN_DISTANCE,
-                )
-            ) {
-                negatives.push(candidate);
-                return;
-            }
-        }
     }
 
     function nextShot() {
@@ -574,8 +676,8 @@ export function september(worker: Worker) {
             setGameOver();
             return;
         }
-        addNegativeMagnet();
-        positive = randomPositive();
+        negatives.push(negativesTemplate[scores.length]);
+        positive = {...positivesTemplate[scores.length]};
         gameState = 'animating';
         animationStartTime = performance.now();
         angleIncrement = new Decimal(0.01);
