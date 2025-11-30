@@ -16,7 +16,7 @@ Play them all here: https://gotm.doteye.online
 | August    | [Cascade](https://gotm.doteye.online#August)            | A domino toppling puzzle game that challenges you to find the correct order and timings for each topple. |
 | September | [Drawn Together](https://gotm.doteye.online#September)  | An optimization game about magnets, painting, and extreme precision.                                     |
 | October   | [The Bean's Gambit](https://gotm.doteye.online#October) | A chess puzzle game where you control made-up pieces.                                                    |
-| November  | Coming Saturday November 29th                           |                                                                                                          |
+| November  | [Make and Break](https://gotm.doteye.online#November)   | A daily block dropping game where you build your own pieces.                                             |
 | December  | Coming Saturday December 27th                           |                                                                                                          |
 
 ### Running Locally
