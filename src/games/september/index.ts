@@ -126,11 +126,12 @@ export function september(worker: Worker) {
     function generateTemplates() {
         const generator = create(getSeedFromDate(selectedDate));
 
-        // Generate 5 different positive magnet starting positions (one for each shot)
         positivesTemplate = [];
+        negativesTemplate = [];
+        const existingPositions: {x: number; y: number}[] = [{x: canvas.width / 2, y: canvas.height / 2}];
         const sideLength = canvas.width + MAGNET_RADIUS * 4;
 
-        for (let i = 0; i < NUM_SHOTS; i++) {
+        for (let i = 0; i < NUM_SHOTS; ++i) {
             const position = generator.random() * sideLength * 4;
             const color = {
                 startColor: `hsl(${generator.random() * 360}, 100%, 50%)`,
@@ -139,7 +140,11 @@ export function september(worker: Worker) {
 
             let positiveTemplate: Positive;
             if (position < sideLength) {
-                positiveTemplate = {...color, x: new Decimal(position - MAGNET_RADIUS * 2), y: new Decimal(-MAGNET_RADIUS * 2)};
+                positiveTemplate = {
+                    ...color,
+                    x: new Decimal(position - MAGNET_RADIUS * 2),
+                    y: new Decimal(-MAGNET_RADIUS * 2),
+                };
             } else if (position < sideLength * 2) {
                 positiveTemplate = {
                     ...color,
@@ -160,26 +165,22 @@ export function september(worker: Worker) {
                 };
             }
             positivesTemplate.push(positiveTemplate);
-        }
 
-        // Generate all negative magnets templates (one for each shot)
-        negativesTemplate = [];
-        const existingPositions: {x: number; y: number}[] = [{x: canvas.width / 2, y: canvas.height / 2}];
-
-        for (let i = 0; i < NUM_SHOTS; i++) {
-            let attempts = 0;
-            while (attempts < 1000) {
+            while (true) {
                 const candidate = {
                     x: generator.random() * (canvas.width - NEGATIVE_PADDING * 2) + NEGATIVE_PADDING,
                     y: generator.random() * (canvas.height - NEGATIVE_PADDING * 2) + NEGATIVE_PADDING,
                 };
 
-                if (!existingPositions.some(other => distance(other.x, other.y, candidate.x, candidate.y) < NEGATIVE_MIN_DISTANCE)) {
+                if (
+                    !existingPositions.some(
+                        other => distance(other.x, other.y, candidate.x, candidate.y) < NEGATIVE_MIN_DISTANCE,
+                    )
+                ) {
                     negativesTemplate.push(candidate);
                     existingPositions.push(candidate);
                     break;
                 }
-                attempts++;
             }
         }
     }
