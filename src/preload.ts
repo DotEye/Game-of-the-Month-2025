@@ -9,6 +9,7 @@ import augustLogo from './games/august/logo.webp';
 import septemberLogo from './games/september/logo.webp';
 import octoberLogo from './games/october/logo.webp';
 import novemberLogo from './games/november/logo.webp';
+import decemberLogo from './games/december/logo.webp';
 
 const preloaded = [];
 function preloadImage(src: string) {
@@ -29,4 +30,5 @@ export function preload() {
     preloadImage(septemberLogo);
     preloadImage(octoberLogo);
     preloadImage(novemberLogo);
+    preloadImage(decemberLogo);
 }

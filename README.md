@@ -10,14 +10,14 @@ Play them all here: https://gotm.doteye.online
 | February  | [Relay](https://gotm.doteye.online#February)            | A puzzle game about carefully positioning repeaters and walls to safely send a secret message.           |
 | March     | [Brick Bop](https://gotm.doteye.online#March)           | A daily game about carefully positioning blocks, optimizing your score, and making music along the way.  |
 | April     | [Kornivore](https://gotm.doteye.online#April)           | A corn maze game where the walls are edible.                                                             |
-| May       | [ Star Squad](https://gotm.doteye.online#May)           | A spaced-themed survival game where you hire crewmates to operate different controls on your ship.       |
+| May       | [Star Squad](https://gotm.doteye.online#May)            | A spaced-themed survival game where you hire crewmates to operate different controls on your ship.       |
 | June      | [Snailsweeper](https://gotm.doteye.online#June)         | A variant of Minesweeper with a snail that chases you, and if it touches you, you die.                   |
 | July      | [Key Pals](https://gotm.doteye.online#July)             | A co-op word game where players work together to spell a word.                                           |
 | August    | [Cascade](https://gotm.doteye.online#August)            | A domino toppling puzzle game that challenges you to find the correct order and timings for each topple. |
 | September | [Drawn Together](https://gotm.doteye.online#September)  | An optimization game about magnets, painting, and extreme precision.                                     |
 | October   | [The Bean's Gambit](https://gotm.doteye.online#October) | A chess puzzle game where you control made-up pieces.                                                    |
 | November  | [Make and Break](https://gotm.doteye.online#November)   | A daily block dropping game where you build your own pieces.                                             |
-| December  | Coming Saturday December 27th                           |                                                                                                          |
+| December  | [Groovy Keys](https://gotm.doteye.online#December)      | A rhythm game where you play any pitch by mirroring the notes' relative directional movement.            |
 
 ### Running Locally
 
