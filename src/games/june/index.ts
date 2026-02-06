@@ -445,9 +445,15 @@ export function june() {
                 const offsetX = (offscreenCanvas.width - tileSize * horizontalTiles) / 2;
                 const offsetY = (offscreenCanvas.height - tileSize * verticalTiles) / 2;
 
-                offscreenContext.font = `${tileSize * 0.8}px ${FONT}`;
+                const fontSize = tileSize * 0.8;
+                const fontScale = Math.max(1, 1 / fontSize);
+
+                offscreenContext.font = `${fontSize * fontScale}px ${FONT}`;
                 offscreenContext.textAlign = 'center';
                 offscreenContext.textBaseline = 'middle';
+
+                offscreenContext.save();
+                offscreenContext.scale(1 / fontScale, 1 / fontScale);
 
                 const size = Math.max(horizontalTiles, verticalTiles);
                 const dx = Math.floor((size - horizontalTiles) / 2);
@@ -461,8 +467,8 @@ export function june() {
                             if (isMine(x, y, seed)) {
                                 offscreenContext.fillText(
                                     '💣',
-                                    (x - leftX) * tileSize + offsetX + tileSize / 2,
-                                    (y - topY) * tileSize + offsetY + tileSize / 2,
+                                    ((x - leftX) * tileSize + offsetX + tileSize / 2) * fontScale,
+                                    ((y - topY) * tileSize + offsetY + tileSize / 2) * fontScale,
                                 );
                             }
                             continue;
@@ -485,14 +491,16 @@ export function june() {
 
                 offscreenContext.fillText(
                     '🐌',
-                    (snail.x - leftX) * tileSize + offsetX + tileSize / 2,
-                    (snail.y - topY) * tileSize + offsetY + tileSize / 2,
+                    ((snail.x - leftX) * tileSize + offsetX + tileSize / 2) * fontScale,
+                    ((snail.y - topY) * tileSize + offsetY + tileSize / 2) * fontScale,
                 );
                 offscreenContext.fillText(
                     '⛏️',
-                    (position.x - leftX) * tileSize + offsetX + tileSize / 2,
-                    (position.y - topY) * tileSize + offsetY + tileSize / 2,
+                    ((position.x - leftX) * tileSize + offsetX + tileSize / 2) * fontScale,
+                    ((position.y - topY) * tileSize + offsetY + tileSize / 2) * fontScale,
                 );
+
+                offscreenContext.restore();
 
                 offscreenContext.drawImage(
                     image,
@@ -709,7 +717,6 @@ export function june() {
             context.fill();
         }
 
-        context.font = `0.5px ${FONT}`;
         const playerGradient = context.createRadialGradient(
             position.x + 0.5,
             position.y + 0.6,
@@ -725,21 +732,38 @@ export function june() {
         context.beginPath();
         context.arc(position.x + 0.5, position.y + 0.6, 0.325, 0, 2 * Math.PI);
         context.fill();
-        context.fillText('⛏️', position.x + 0.5, position.y + 0.6);
-        context.font = `bold 0.75px ${FONT}`;
+
+        // Use a larger font size while drawing emojis as certain browsers such as Firefox
+        // render them with a resolution proportional to their font size, regardless of scale
+        context.save();
+        context.font = `64px ${FONT}`;
+        context.translate(position.x + 0.5, position.y + 0.6);
+        context.scale(1 / 128, 1 / 128);
+        context.fillText('⛏️', 0, 0);
+        context.restore();
 
         context.fillStyle = HEALTH_BAR_BACKGROUND;
         context.fillRect(position.x + 0.1, position.y + 0.1, 0.8, 0.15);
         context.fillStyle = HEALTH_BAR_FOREGROUND;
         context.fillRect(position.x + 0.1, position.y + 0.1, state.health * 0.8, 0.15);
 
-        context.fillText('🐌', snail.x + 0.5, snail.y + 0.5);
+        context.save();
+        context.font = `bold 64px ${FONT}`;
+        context.translate(snail.x + 0.5, snail.y + 0.5);
+        context.scale(3 / 256, 3 / 256);
+        context.fillText('🐌', 0, 0);
+        context.restore();
 
         if (showMines) {
             for (let x = position.x - viewRange; x < position.x + viewRange; ++x) {
                 for (let y = position.y - viewRange; y < position.y + viewRange; ++y) {
                     if (isMine(x, y) && !state.clear.has(`${x},${y}`)) {
-                        context.fillText('💣', x + 0.5, y + 0.5);
+                        context.save();
+                        context.font = `bold 64px ${FONT}`;
+                        context.translate(x + 0.5, y + 0.5);
+                        context.scale(3 / 256, 3 / 256);
+                        context.fillText('💣', 0, 0);
+                        context.restore();
                     }
                 }
             }
@@ -749,14 +773,22 @@ export function june() {
             if (value === 0 || !clear.has(key)) continue;
             const [x, y] = key.split(',').map(Number);
             context.fillStyle = HINT_COLORS[value - 1];
-            context.fillText(value.toString(), x + 0.5, y + 0.555);
+            context.save();
+            context.translate(x + 0.5, y + 0.555);
+            context.scale(0.5, 0.5);
+            context.fillText(value.toString(), 0, 0);
+            context.restore();
         }
 
         const timeDifference = Date.now() - state.startTime;
         if (timeDifference < HEAD_START) {
             context.fillStyle = SNAIL_WARNING_TEXT_COLOR;
             const text = readyTime ? 'READY?' : `SNAIL AWAKENS IN ${((HEAD_START - timeDifference) / 1000).toFixed(0)}`;
-            context.fillText(text, 0.5, -1.5);
+            context.save();
+            context.translate(0.5, -1.5);
+            context.scale(0.5, 0.5);
+            context.fillText(text, 0, 0);
+            context.restore();
         }
 
         context.resetTransform();
@@ -882,7 +914,7 @@ export function june() {
 
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.font = `bold 0.75px ${FONT}`;
+    context.font = `bold 1.5px ${FONT}`;
 
     mainMenu();
 
