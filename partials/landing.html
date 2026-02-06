@@ -1,0 +1,14 @@
+{{> header }}
+<body>
+    <main>
+        <h1>{{name}}</h1>
+        <p>{{description}}</p>
+        <a href="/#{{month}}" style="display: flex; flex-direction: column; gap: 25px">
+            <img src="{{image}}" alt="{{name}} Logo" style="background-color: {{color}}">
+            <button>Play Now</button>
+        </a>
+        <p>Made for <a href="/#{{month}}">Game of the Month 2025</a></p>
+    </main>
+    {{> footer }}
+</body>
+</html>

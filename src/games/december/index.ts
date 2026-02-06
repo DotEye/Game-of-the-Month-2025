@@ -576,9 +576,9 @@ export function december() {
         if (!state.paused) requestAnimationFrame(draw);
     }
 
-    function hitNote(noteIndex: number, key: number, fromTutorial: boolean = false) {
+    function hitNote(noteIndex: number, key: number, fromTutorial: boolean = false, hitTime?: number) {
         if (!state) return;
-        const time = audioContext.currentTime - state.startTime;
+        const time = hitTime ?? (audioContext.currentTime - state.startTime);
         const buttons = document.querySelectorAll<HTMLElement>('#december-keys > button');
 
         state.lastSuccessfulKey = key;
@@ -679,7 +679,7 @@ export function december() {
         const buttons = document.querySelectorAll<HTMLElement>('#december-keys > button');
 
         if (noteIndex !== undefined) {
-            hitNote(noteIndex, key);
+            hitNote(noteIndex, key, false, time);
         } else {
             if (key > 0 && key <= buttons.length) {
                 const button = buttons[key - 1];

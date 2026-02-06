@@ -1,245 +1,59 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XLQQ3THWQV"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
-            gtag('config', 'G-XLQQ3THWQV');
-        </script>
-
-        <meta charset="UTF-8" />
-        <meta
-            name="description"
-            content="A collection of twelves games created and published throughout 2025. Each game is simple, unique, and has an OST."
-        />
-        <meta name="keywords" content="Web Games, Game of the Month" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://gotm.doteye.online" />
-        <meta property="og:title" content="Game of the Month 2025" />
-        <meta
-            property="og:description"
-            content="A collection of twelves games created and published throughout 2025. Each game is simple, unique, and has an OST."
-        />
-        <meta property="og:image" content="/ogImage.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Comfortaa&family=Gloria+Hallelujah&family=Oswald:wght@200..700&display=swap"
-            rel="stylesheet"
-        />
-        <title>Game of the Month 2025</title>
-    </head>
-    <body>
-        <main>
-            <h1>Game of the Month 2025</h1>
-            <h2 class="credits">
-                Games by
-                <a href="https://doteye.online" target="_blank">.i</a>
-                , music by
-                <a href="https://instagram.com/arieschtruth" target="_blank">Ari Eschtruth</a>
-                , game logos by
-                <a href="https://instagram.com/xynree" target="_blank">xynree</a>
-            </h2>
-            <div id="buttons">
-                <button id="prev-button" class="themed" disabled>Prev</button>
-                <span id="month-span"></span>
-                <button id="next-button" class="themed" disabled>Next</button>
-                <button id="settings-button" class="themed">⚙️</button>
-            </div>
-            <div id="wrapper">
-                <canvas width="600" height="600"></canvas>
-                <div id="overlay">
-                    <div class="center">
-                        <h2>Loading...</h2>
-                    </div>
-                </div>
-                <div id="settings" class="removed">
-                    <h3>Settings</h3>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td><label for="settings-music-volume">Music volume</label></td>
-                                <td><input type="range" id="settings-music-volume" min="0" max="1" step="0.05" /></td>
-                            </tr>
-                            <tr>
-                                <td><label for="settings-sound-effects-volume">Sound effects volume</label></td>
-                                <td>
-                                    <input
-                                        type="range"
-                                        id="settings-sound-effects-volume"
-                                        min="0"
-                                        max="1"
-                                        step="0.05"
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label for="settings-reset-button" class="themed">Reset all saved data</label></td>
-                                <td><button id="settings-reset-button" class="themed">Reset</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button id="settings-done-button" class="themed">Done</button>
+{{> header }}
+<body>
+    <main>
+        <h1>Game of the Month 2025</h1>
+        <h2 class="credits">
+            Games by
+            <a href="https://doteye.online" target="_blank">.i</a>
+            , music by
+            <a href="https://instagram.com/arieschtruth" target="_blank">Ari Eschtruth</a>
+            , game logos by
+            <a href="https://instagram.com/xynree" target="_blank">xynree</a>
+        </h2>
+        <div id="buttons">
+            <button id="prev-button" class="themed" disabled>Prev</button>
+            <span id="month-span"></span>
+            <button id="next-button" class="themed" disabled>Next</button>
+            <button id="settings-button" class="themed">⚙️</button>
+        </div>
+        <div id="wrapper">
+            <canvas width="600" height="600"></canvas>
+            <div id="overlay">
+                <div class="center">
+                    <h2>Loading...</h2>
                 </div>
             </div>
-        </main>
-
-        <footer>
-            <div class="links">
-                <a class="icon" href="https://discord.gg/tykwEuuYCt" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/discord.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/discord.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img
-                            width="25"
-                            height="25"
-                            src="https://doteye.online/assets/social/light/discord.svg"
-                            alt="Discord"
-                        />
-                    </picture>
-                </a>
-                <a class="icon" href="https://www.youtube.com/DotEyeOnline" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/youtube.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/youtube.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img
-                            width="25"
-                            height="25"
-                            src="https://doteye.online/assets/social/light/youtube.svg"
-                            alt="YouTube"
-                        />
-                    </picture>
-                </a>
-                <a class="icon" href="https://www.instagram.com/doteyeonline" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/instagram.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/instagram.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img
-                            width="25"
-                            height="25"
-                            src="https://doteye.online/assets/social/light/instagram.svg"
-                            alt="Instagram"
-                        />
-                    </picture>
-                </a>
-                <a class="icon" href="https://www.tiktok.com/@doteyeonline" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/tiktok.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/tiktok.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img
-                            width="25"
-                            height="25"
-                            src="https://doteye.online/assets/social/light/tiktok.svg"
-                            alt="TikTok"
-                        />
-                    </picture>
-                </a>
-                <a class="icon" href="https://reddit.com/u/DotEyeOnline" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/reddit.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/reddit.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img
-                            width="25"
-                            height="25"
-                            src="https://doteye.online/assets/social/light/reddit.svg"
-                            alt="Reddit"
-                        />
-                    </picture>
-                </a>
-                <a class="icon" href="https://twitter.com/DotEyeOnline" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/x.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/x.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img width="25" height="25" src="https://doteye.online/assets/social/light/x.svg" alt="X" />
-                    </picture>
-                </a>
-                <a class="icon" href="https://github.com/DotEye" target="_blank">
-                    <picture>
-                        <source
-                            srcset="https://doteye.online/assets/social/dark/github.svg"
-                            media="(prefers-color-scheme: light)"
-                        />
-                        <source
-                            srcset="https://doteye.online/assets/social/light/github.svg"
-                            media="(prefers-color-scheme: dark)"
-                        />
-                        <img
-                            width="25"
-                            height="25"
-                            src="https://doteye.online/assets/social/light/github.svg"
-                            alt="GitHub"
-                        />
-                    </picture>
-                </a>
+            <div id="settings" class="removed">
+                <h3>Settings</h3>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label for="settings-music-volume">Music volume</label></td>
+                            <td><input type="range" id="settings-music-volume" min="0" max="1" step="0.05" /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="settings-sound-effects-volume">Sound effects volume</label></td>
+                            <td>
+                                <input
+                                    type="range"
+                                    id="settings-sound-effects-volume"
+                                    min="0"
+                                    max="1"
+                                    step="0.05"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="settings-reset-button" class="themed">Reset all saved data</label></td>
+                            <td><button id="settings-reset-button" class="themed">Reset</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button id="settings-done-button" class="themed">Done</button>
             </div>
-            <a class="footer-center" href="https://doteye.online/privacy" target="_blank">Privacy Policy</a>
-            <a href="https://doteye.online" target="_blank" id="doteye-link">
-                <svg width="72" height="72">
-                    <filter id="glow">
-                        <feTurbulence type="turbulence" numOctaves="1" result="turbulence">
-                            <animate
-                                attributeName="baseFrequency"
-                                dur="10s"
-                                values="0.1; 0.025; 0.1"
-                                repeatCount="indefinite"
-                            />
-                        </feTurbulence>
-                        <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="5" />
-                    </filter>
-                    <g transform="translate(12, 12)">
-                        <rect x="-5" y="-5" width="48" height="48" class="eye-background" fill="#ffffffbf" />
-                        <rect x="-5" y="1" width="48" height="48" class="eye-background" fill="#ffffffbf" />
-                        <rect x="1" y="-5" width="48" height="48" class="eye-background" fill="#ffffffbf" />
-                        <rect x="1" y="1" width="48" height="48" class="eye-background" fill="#ffffffbf" />
-                    </g>
-                    <rect x="12" y="12" width="48" height="48" fill="#d07e9e" />
-                    <rect x="20" y="20" width="12" height="12" fill="#1a2b3d" />
-                </svg>
-            </a>
-        </footer>
-        <script type="module" src="/src/main.ts"></script>
-    </body>
+        </div>
+    </main>
+    {{> footer }}
+    <script type="module" src="/src/main.ts"></script>
+</body>
 </html>

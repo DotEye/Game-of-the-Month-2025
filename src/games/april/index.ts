@@ -1,7 +1,7 @@
 import click from '../../assets/click.ogg';
 import corn from './corn.png';
 import eat from '../../assets/eat.ogg';
-import logo from './logo.png';
+import logo from './logo.webp';
 import music from './music.ogg';
 import win from '../../assets/win.ogg';
 import {FONT, UI_WHITE} from '../../shared/style.ts';

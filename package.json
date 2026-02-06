@@ -11,7 +11,8 @@
     "devDependencies": {
         "prettier": "^3.6.2",
         "typescript": "~5.9.3",
-        "vite": "^7.1.9"
+        "vite": "^7.1.9",
+        "vite-plugin-handlebars": "^2.0.0"
     },
     "dependencies": {
         "@types/ga-gtag": "^1.2.0",
