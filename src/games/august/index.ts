@@ -1517,9 +1517,15 @@ export function august() {
                     context.restore();
                     break;
                 case 'text':
+                    // Firefox has trouble rendering font sizes below ~0.55px
+                    // As a workaround, scale back to normal size before drawing the text
+                    context.save();
+                    context.translate(object.x + 0.5, object.y + 0.5);
+                    context.scale(1 / state.scale, 1 / state.scale);
                     context.fillStyle = UI_WHITE;
-                    context.font = `${24 / state.scale}px ${FONT}`;
-                    context.fillText(object.text, object.x + 0.5, object.y + 0.5);
+                    context.font = `24px ${FONT}`;
+                    context.fillText(object.text, 0, 0);
+                    context.restore();
                     break;
             }
         }
