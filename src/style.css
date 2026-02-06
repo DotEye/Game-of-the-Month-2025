@@ -229,26 +229,49 @@ td {
 }
 
 @media (prefers-color-scheme: light) {
-    *:focus-visible {
+    html[data-theme='system'] *:focus-visible {
         outline: 5px solid var(--ui-black);
     }
 
-    body {
+    html[data-theme='system'] body {
         background-color: var(--ui-white);
         color: var(--ui-black);
     }
 
-    button.themed {
+    html[data-theme='system'] button.themed {
         border-color: #121212;
         color: #121212;
     }
 
-    canvas,
-    #settings {
+    html[data-theme='system'] canvas,
+    html[data-theme='system'] #settings {
         border: 1px solid var(--ui-black);
     }
 
-    a {
+    html[data-theme='system'] a {
         color: #1a2b3c;
     }
+}
+
+html[data-theme='light'] *:focus-visible {
+    outline: 5px solid var(--ui-black);
+}
+
+html[data-theme='light'] body {
+    background-color: var(--ui-white);
+    color: var(--ui-black);
+}
+
+html[data-theme='light'] button.themed {
+    border-color: #121212;
+    color: #121212;
+}
+
+html[data-theme='light'] canvas,
+html[data-theme='light'] #settings {
+    border: 1px solid var(--ui-black);
+}
+
+html[data-theme='light'] a {
+    color: #1a2b3c;
 }

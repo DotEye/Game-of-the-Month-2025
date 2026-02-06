@@ -10,6 +10,7 @@ export const settingsSoundEffectsVolumeInput = document.getElementById(
     'settings-sound-effects-volume',
 ) as HTMLInputElement;
 export const settingsResetButton = document.getElementById('settings-reset-button') as HTMLButtonElement;
+export const settingsThemeSelect = document.getElementById('settings-theme') as HTMLSelectElement;
 export const overlay = document.getElementById('overlay') as HTMLDivElement;
 
 export const context = canvas.getContext('2d')!;

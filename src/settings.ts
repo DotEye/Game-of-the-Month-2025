@@ -7,6 +7,7 @@ import {
     settingsMusicVolumeInput,
     settingsResetButton,
     settingsSoundEffectsVolumeInput,
+    settingsThemeSelect,
 } from './dom.ts';
 import {audioContext, musicGain, setupMusic, setupSoundEffect, soundEffectsGain} from './audio.ts';
 import music from './games/january/music.ogg';
@@ -69,10 +70,20 @@ export function initSettings() {
         }
     });
 
+    function onSettingsThemeChange() {
+        const theme = settingsThemeSelect.value;
+        localStorage.setItem('theme', theme);
+        applyTheme(theme);
+    }
+
+    settingsThemeSelect.addEventListener('input', onSettingsThemeChange);
+
     settingsMusicVolumeInput.value = localStorage.getItem('music-volume') ?? '0.75';
     onSettingsMusicVolumeInput();
     settingsSoundEffectsVolumeInput.value = localStorage.getItem('sound-effects-volume') ?? '0.75';
     onSettingsSoundEffectsVolumeInput();
+    settingsThemeSelect.value = localStorage.getItem('theme') ?? 'system';
+    onSettingsThemeChange();
 
     settingsResetButton.addEventListener('click', () => {
         if (resetConfirmationTimeout === undefined) {
@@ -90,4 +101,22 @@ export function initSettings() {
     });
 
     settingsDoneButton.addEventListener('click', loadGame);
+}
+
+function applyTheme(theme: string) {
+    document.documentElement.dataset.theme = theme;
+
+    const lightSources = document.querySelectorAll<HTMLSourceElement>('footer .icon picture source[media*="light"]');
+    const darkSources = document.querySelectorAll<HTMLSourceElement>('footer .icon picture source[media*="dark"]');
+
+    if (theme === 'light') {
+        lightSources.forEach(source => (source.media = 'all'));
+        darkSources.forEach(source => (source.media = 'not all'));
+    } else if (theme === 'dark') {
+        lightSources.forEach(source => (source.media = 'not all'));
+        darkSources.forEach(source => (source.media = 'all'));
+    } else {
+        lightSources.forEach(source => (source.media = '(prefers-color-scheme: light)'));
+        darkSources.forEach(source => (source.media = '(prefers-color-scheme: dark)'));
+    }
 }
