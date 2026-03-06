@@ -18,7 +18,7 @@ import {next} from './next.ts';
 
 const games = [january, february, march, april, may, june, july, august, september, october, november, december, next];
 
-const defaultMonthIndex = 11;
+const defaultMonthIndex = 0;
 
 const worker = new GameWorker();
 
