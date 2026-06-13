@@ -575,11 +575,35 @@ export function may() {
     function confirmMenu() {
         clickAudio.play();
 
+        const pauseStart = Date.now();
         if (
             !confirm(
                 'Are you sure you want to return to the menu? Your progress will be lost. Only do this if you want to restart the game.',
             )
         ) {
+            const pauseDuration = Date.now() - pauseStart;
+            if (state.type === 'play' && state.state.type === 'playing') {
+                const playingState = state.state;
+                playingState.state.startTime += pauseDuration;
+                if (playingState.lastDrawTime !== undefined) playingState.lastDrawTime += pauseDuration;
+                if (playingState.state.type === 'live') {
+                    const liveState = playingState.state;
+                    if (liveState.lastHitTime !== undefined) liveState.lastHitTime += pauseDuration;
+                    if (liveState.lastEnemySpawnTime !== undefined) liveState.lastEnemySpawnTime += pauseDuration;
+                    if (liveState.fireStartTime !== undefined) liveState.fireStartTime += pauseDuration;
+                    if (liveState.mineStartTime !== undefined) liveState.mineStartTime += pauseDuration;
+                    if (liveState.repairStartTime !== undefined) liveState.repairStartTime += pauseDuration;
+                    if (liveState.lastPerkCheckTime !== undefined) liveState.lastPerkCheckTime += pauseDuration;
+                    for (const enemy of liveState.enemies) {
+                        if (enemy.fireStartTime !== undefined) enemy.fireStartTime += pauseDuration;
+                        if (enemy.lastShotTime !== undefined) enemy.lastShotTime += pauseDuration;
+                        if (enemy.lastShotAttemptTime !== undefined) enemy.lastShotAttemptTime += pauseDuration;
+                    }
+                    for (const text of liveState.texts) {
+                        text.time += pauseDuration;
+                    }
+                }
+            }
             return;
         }
 
@@ -894,36 +918,76 @@ export function may() {
         if (state.type !== 'play' || state.state.type !== 'playing') return;
         const {startTime} = state.state.state;
         const roundTimeLeft = ROUND_DURATION - (Date.now() - startTime);
-        setOverlay(`
-            <div id="may-playing-overlay" style="display: flex; flex-direction: column; height: 100%">
-                <div style="display: flex; flex-grow: 1">
-                    <div id="may-game-container" style="flex: 1; display: flex; align-items: center; justify-content: center">
-                        ${state.state.state.type === 'countdown' ? `<h1 style="font-size: 100px">${Math.ceil(((COUNTDOWN_TIME - (Date.now() - startTime)) / COUNTDOWN_TIME) * COUNTDOWN_NUMBERS)}</h1>` : ''}
-                        <h4 style="padding-top: ${PLAY_AREA / 2}px; display: flex; align-items: center; gap: 5px; text-align: center; pointer-events: none">
-                            ${getTutorialHtml()}
-                        </h4>
-                    </div>
-                    <div style="flex-basis: ${canvas.width - PLAY_AREA}px; display: flex; flex-direction: column; justify-content: space-between; padding: 10px 0; border-left: 2px solid white; align-items: center">
-                        <button id="may-menu-button">MENU</button>
-                        <div style="display: flex; flex-direction: column; text-align: center">
-                            <strong>Round ${state.roundNumber}</strong>
-                            <span><span id="may-time-left-span">${state.state.state.type === 'live' ? (roundTimeLeft / 1000).toFixed(1) : ROUND_DURATION / 1000}</span>s</span>
+
+        if (!document.getElementById('may-game-container')) {
+            setOverlay(`
+                <div id="may-playing-overlay" style="display: flex; flex-direction: column; height: 100%">
+                    <div style="display: flex; flex-grow: 1">
+                        <div id="may-game-container" style="flex: 1; display: flex; align-items: center; justify-content: center">
+                            <div id="may-countdown-container"></div>
+                            <h4 id="may-tutorial-container" style="padding-top: ${PLAY_AREA / 2}px; display: flex; align-items: center; gap: 5px; text-align: center; pointer-events: none"></h4>
                         </div>
-                        <div style="display: flex; flex-direction: column; text-align: center">
-                            <strong>HP: ${state.hp}/${getMaxHp()}</strong>
-                            <strong>Ore: ${state.ore}</strong>
+                        <div style="flex-basis: ${canvas.width - PLAY_AREA}px; display: flex; flex-direction: column; justify-content: space-between; padding: 10px 0; border-left: 2px solid white; align-items: center">
+                            <button id="may-menu-button">MENU</button>
+                            <div style="display: flex; flex-direction: column; text-align: center">
+                                <strong>Round ${state.roundNumber}</strong>
+                                <span><span id="may-time-left-span"></span>s</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; text-align: center">
+                                <strong id="may-hp-display"></strong>
+                                <strong id="may-ore-display"></strong>
+                            </div>
                         </div>
                     </div>
+                    <div id="may-roles-outer-container"></div>
                 </div>
-                ${getRolesHtml(state.state.currentRole)}
-            </div>
-        `);
+            `);
 
-        document.getElementById('may-menu-button')!.addEventListener('click', confirmMenu);
+            document.getElementById('may-menu-button')!.addEventListener('click', confirmMenu);
 
-        document
-            .querySelectorAll('#may-roles-container > div')
-            .forEach((position, role) => position.addEventListener('pointerdown', event => switchRole(event, role)));
+            const rolesOuter = document.getElementById('may-roles-outer-container');
+            if (rolesOuter) {
+                rolesOuter.addEventListener('pointerdown', event => {
+                    const target = event.target as HTMLElement;
+                    const div = target.closest('#may-roles-container > div');
+                    if (div) {
+                        const container = document.getElementById('may-roles-container');
+                        if (container && container.contains(div)) {
+                            const divs = Array.from(container.children);
+                            const roleIndex = divs.indexOf(div);
+                            if (roleIndex !== -1) {
+                                switchRole(event, roleIndex as Role);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        const countdownContainer = document.getElementById('may-countdown-container');
+        if (countdownContainer) {
+            if (state.state.state.type === 'countdown') {
+                const count = Math.ceil(((COUNTDOWN_TIME - (Date.now() - startTime)) / COUNTDOWN_TIME) * COUNTDOWN_NUMBERS);
+                countdownContainer.innerHTML = `<h1 style="font-size: 100px">${count}</h1>`;
+            } else {
+                countdownContainer.innerHTML = '';
+            }
+        }
+
+        const tutorialContainer = document.getElementById('may-tutorial-container');
+        if (tutorialContainer) tutorialContainer.innerHTML = getTutorialHtml();
+
+        const timeLeftSpan = document.getElementById('may-time-left-span');
+        if (timeLeftSpan) timeLeftSpan.textContent = state.state.state.type === 'live' ? (roundTimeLeft / 1000).toFixed(1) : (ROUND_DURATION / 1000).toFixed(1);
+
+        const hpDisplay = document.getElementById('may-hp-display');
+        if (hpDisplay) hpDisplay.textContent = `HP: ${state.hp}/${getMaxHp()}`;
+
+        const oreDisplay = document.getElementById('may-ore-display');
+        if (oreDisplay) oreDisplay.textContent = `Ore: ${state.ore}`;
+
+        const rolesOuter = document.getElementById('may-roles-outer-container');
+        if (rolesOuter) rolesOuter.innerHTML = getRolesHtml(state.state.currentRole);
     }
 
     function calculateScore() {
