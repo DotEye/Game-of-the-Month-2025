@@ -304,7 +304,7 @@ export function april() {
         };
         setLevelOverlay();
         requestDraw();
-        window.gtag('event', 'level_start', {level_name: `kornivore-${index + 1}`});
+        (window as any).gtag('event', 'level_start', {level_name: `kornivore-${index + 1}`});
     }
 
     function mainMenu() {
@@ -485,7 +485,7 @@ export function april() {
                 </div>
             `);
 
-            window.gtag('event', 'level_end', {level_name: `kornivore-${levelIndex + 1}`});
+            (window as any).gtag('event', 'level_end', {level_name: `kornivore-${levelIndex + 1}`});
 
             (document.getElementById('april-menu-button') as HTMLButtonElement).addEventListener('click', () => {
                 clickAudio.play();
