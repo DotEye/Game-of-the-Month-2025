@@ -285,11 +285,11 @@ export function march() {
     function getBlocksFromStorage() {
         const stored = storage.get(`blocks-${getDateString(selectedDate)}`);
         const result = structuredClone(blocksTemplate);
-        if (typeof stored !== 'object' || stored === null) return result;
+        if (typeof stored !== 'object' || stored === null || Array.isArray(stored)) return result;
 
         for (const [indexString, position] of Object.entries(stored)) {
             const index = +indexString;
-            if (typeof position !== 'object' || position === null || blocksTemplate[index].type !== 'draggable') {
+            if (typeof position !== 'object' || position === null || blocksTemplate[index]?.type !== 'draggable') {
                 continue;
             }
 
@@ -400,7 +400,7 @@ export function march() {
 
     function getMaximumPossibleBlockScore() {
         return (
-            blocks
+            [...blocks]
                 // Process multiply blocks last
                 .sort((a, b) => Number(a.type === 'multiply') - Number(b.type === 'multiply'))
                 .reduce(
@@ -450,7 +450,7 @@ export function march() {
     function getPar() {
         return (
             Math.floor(
-                (blocks
+                ([...blocks]
                     // Process multiply blocks last
                     .sort((a, b) => Number(a.type === 'multiply') - Number(b.type === 'multiply'))
                     .reduce(addBlockToPar, 0) *
@@ -540,7 +540,7 @@ export function march() {
             if (confirm('Are you sure you want to reset all blocks to their original positions?')) {
                 clickAudio.play();
                 blocks = structuredClone(blocksTemplate);
-                storage.set(`blocks-${getDateString(selectedDate)}`, blocks);
+                storage.set(`blocks-${getDateString(selectedDate)}`, {});
             }
         });
         document.getElementById('march-help-button')!.addEventListener('click', () => helpMenu().then(startSetup));
